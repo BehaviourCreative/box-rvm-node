@@ -40,11 +40,11 @@ script: |
     sudo npm install -g --silent grunt-cli
     
     # RVM
+    sudo apt-get update -y
     sudo apt-get install git zlib1g-dev libreadline-dev libqtwebkit-dev curl -y
     sudo apt-get remove ruby1.9.1
     curl -sSL https://get.rvm.io | bash -s stable
-    echo "bundler -v~>1.5.1" > $HOME/.rvm/gemsets/global.gems
-    cat $HOME/.rvm/scripts/rvm
+    echo "bundler -v~>1.6.2" > $HOME/.rvm/gemsets/global.gems
     source $HOME/.rvm/scripts/rvm
     rvm install 1.9.3-p484
     rvm install 1.9.3-p545
@@ -57,5 +57,3 @@ script: |
     echo "gem: --no-rdoc --no-ri" >> $HOME/.gemrc
     echo "RAILS_ENV=test" | sudo tee -a /etc/environment
     echo "RACK_ENV=test" | sudo tee -a /etc/environment
-    # prevent final deploy
-    fail_now
