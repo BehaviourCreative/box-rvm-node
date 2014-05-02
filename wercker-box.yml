@@ -11,11 +11,35 @@ packages:
     - ruby@2.0.0-p451
     - ruby@2.1.0
     - ruby@2.1.1
+    - nodejs@0.10.26
 keywords:
     - ruby
     - rvm
 script: |
     sudo apt-get update -y
+    
+    # node
+    export NODEVERSION=0.10.26
+    sudo apt-get install wget build-essential
+    cd $HOME
+    mkdir nodeinstall
+    cd nodeinstall
+    wget http://nodejs.org/dist/v$NODEVERSION/node-v$NODEVERSION.tar.gz
+    tar xzvf node-v$NODEVERSION.tar.gz
+    cd node-v$NODEVERSION
+    ./configure
+    make
+    sudo make install
+    cd $HOME
+    rm -fr nodeinstall
+    node -v
+    
+    # grunt
+    npm config set ca "" --silent
+    sudo npm install npm -g --silent
+    sudo npm install -g --silent grunt-cli
+    
+    # RVM
     sudo apt-get install git zlib1g-dev libreadline-dev libqtwebkit-dev curl -y
     sudo apt-get remove ruby1.9.1
     curl -sSL https://get.rvm.io | bash -s stable
@@ -35,81 +59,3 @@ script: |
     echo "RACK_ENV=test" | sudo tee -a /etc/environment
     # prevent final deploy
     fail_now
-box-detect:
-    priority: 200
-    version:
-    detect:
-        - files:
-            - Gemfile
-
-default-build:
-    ruby-on-rails:
-        priority: 100
-        detect:
-            - files:
-                - config
-        text-to-append: |-
-            # Build definition
-            # See the Rails section on the wercker devcenter:
-            # http://devcenter.wercker.com/articles/languages/ruby/settingup-rails4.html
-            # You will want to define your database as follows:
-            # services:
-            #   - wercker/postgresql
-            # See more about services on our devcenter:
-            # http://devcenter.wercker.com/articles/services/
-            build:
-                steps:
-                    # Uncomment this to force RVM to use a specific Ruby version
-                    # - rvm-use:
-                    #       version: 2.1.0
-
-                    # A step that executes `bundle install` command
-                    - bundle-install
-
-                    # A step that prepares the database.yml using the database in services
-                    # - rails-database-yml
-
-                    # A custom script step, name value is used in the UI
-                    # and the code value contains the command that get executed
-                    - script:
-                        name: echo ruby information
-                        code: |
-                            echo "ruby version $(ruby --version) running"
-                            echo "from location $(which ruby)"
-                            echo -p "gem list: $(gem list)"
-
-                    # Add more steps here:
-                    # - script:
-                    #        name: rspec
-                    #        code: bundle exec rspec
-    ruby:
-        priority : 50
-        detect:
-            - default: true
-        text-to-append: |-
-            # Build definition
-            build:
-                # The steps that will be executed on build
-                # See the Ruby section on the wercker devcenter:
-                # http://devcenter.wercker.com/articles/languages/ruby.html
-                steps:
-                    # Uncomment this to force RVM to use a specific Ruby version
-                    # - rvm-use:
-                    #       version: 2.1.0
-
-                    # A step that executes `bundle install` command
-                    - bundle-install
-
-                    # A custom script step, name value is used in the UI
-                    # and the code value contains the command that get executed
-                    - script:
-                        name: echo ruby information
-                        code: |
-                            echo "ruby version $(ruby --version) running"
-                            echo "from location $(which ruby)"
-                            echo -p "gem list: $(gem list)"
-
-                    # Add more steps here:
-                    # - script:
-                    #    name: rspec
-                    #    code: bundle exec rspec
